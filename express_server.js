@@ -65,10 +65,6 @@ app.get("/login", (req, res) => {
 });
 
 app.get("/urls", (req, res) => {
-  console.log("req.cookies in urls", req.cookies)
-  console.log("req.cookies.email in urls", req.cookies.email)
-  console.log("findUserByEmail(req.cookies.email)", findUserByEmail(req.cookies.email))
-  console.log(typeof findUserByEmail(req.cookies.email))
   const templateVars = { 
     urls: urlDatabase,
     user: findUserByEmail(req.cookies.email)
@@ -132,15 +128,20 @@ app.post('/logout', function (req, res) {
 });
 
 app.post('/register', (req, res) => {
+  if (req.body.email === "" || req.body.password === "") {
+    return res.status(400).send("You need to enter a valid email and password!");
+  };
+  if (findUserByEmail(req.body.email)) {
+    return res.status(400).send("Your email has been registered! Please enter another email add to resgiter!")
+  };
   const id = generateRandomString(6);
   users[id] = {
     id: id,
     email: req.body.email,
     password: req.body.password
   };
-  const user = users[id]
+  const user = users[id];
   res.cookie('email', users[id].email);
-  console.log("req.cookies", req.cookies)
   res.redirect("/urls");
 })
 
