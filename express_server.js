@@ -20,17 +20,45 @@ const urlDatabase = {
   "9sm5xK": "http://www.google.com"
 };
 
+const cookieParser = require('cookie-parser');
+const { restart } = require("nodemon");
+app.use(cookieParser());
+
 app.get("/", (req, res) => {
   res.send("Hello!");
 });
 
+app.get("/login", (req, res) => {
+  const templateVars = { 
+    username: req.cookies["username"]
+  };
+  res.render("partials/_header.ejs", templateVars);
+});
+
+app.post('/login', function (req, res) {
+  res.cookie('username', req.body.username);
+  console.log("req.cookies", req.cookies)
+  res.redirect("/urls");
+});
+
+app.post('/logout', function (req, res) {
+  res.clearCookie('username', req.body.username);
+  res.redirect("/urls");
+});
+
 app.get("/urls", (req, res) => {
-  const templateVars = { urls: urlDatabase };
+  const templateVars = { 
+    urls: urlDatabase,
+    username: req.cookies["username"]
+  };
   res.render("urls_index", templateVars);
 });
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const templateVars = { 
+    username: req.cookies["username"]
+  };
+  res.render("urls_new", templateVars);
 });
 
 app.post("/urls", (req, res) => {
@@ -46,6 +74,11 @@ app.post("/urls/:id/delete", (req, res) => {
   res.redirect("/urls");
 });
 
+app.post("/urls/:id/edit", (req, res) => {
+  const id = req.params.id;
+  res.redirect(`/urls/${id}`);
+});
+
 app.post("/urls/:id", (req, res) => {
   const id = req.params.id;
   urlDatabase[id] = req.body.longUrl;
@@ -53,7 +86,11 @@ app.post("/urls/:id", (req, res) => {
 });
 
 app.get("/urls/:id", (req, res) => {
-  const templateVars = { id: req.params.id, longURL: urlDatabase[req.params.id] };
+  const templateVars = { 
+    id: req.params.id, 
+    longURL: urlDatabase[req.params.id], 
+    username: req.cookies["username"]
+  };
   res.render("urls_show", templateVars);
 });
 
