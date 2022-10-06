@@ -26,21 +26,13 @@
         </div>
       </form>
     <% } else { %>
-      <form class="form-inline" method="POST" action="/login">
-        <div class="form-group mb-2">
-          <label for="email">Enter User Email:</label>
-            <input
-              class="form-control"
-              type="email"
-              name="email"
-              placeholder=""
-              style="width: 200px; margin: 1em"
-            />
+      <form class="form-inline" method="GET" action="/login">
+        <div>
           <button type="submit" class="btn btn-primary">Log In</button>
         </div>
       </form>
-      <form class="form-inline" method="POST" action="/register">
-        <div >
+      <form class="form-inline" method="GET" action="/register">
+        <div>
           <button type="submit" class="btn btn-primary">Register</button>
         </div>
       </form>

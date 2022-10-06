@@ -61,7 +61,7 @@ app.get("/login", (req, res) => {
   const templateVars = { 
     user: findUserByEmail(req.cookies.email)
   };
-  res.render("partials/_header.ejs", templateVars);
+  res.render("urls_login", templateVars);
 });
 
 app.get("/urls", (req, res) => {
