@@ -44,6 +44,28 @@ const findUserByEmail = (email) => {
   return false;
 };
 
+const findPasswordByEmail = (email) => {
+  for (const user in users) {
+    const userToEmail = users[user];
+    if (userToEmail.email === email) { 
+      // we found our user!!
+      return userToEmail.password;
+    }
+  }
+  return false;
+};
+
+const findUserIDByEmail = (email) => {
+  for (const user in users) {
+    const userToEmail = users[user];
+    if (userToEmail.email === email) { 
+      // we found our user!!
+      return userToEmail.id;
+    }
+  }
+  return false;
+};
+
 const cookieParser = require('cookie-parser');
 const { restart } = require("nodemon");
 app.use(cookieParser());
@@ -117,9 +139,14 @@ app.get("/urls/:id", (req, res) => {
 // app.post 
 
 app.post('/login', function (req, res) {
-  res.cookie('email', req.body.email);
-  console.log("req.cookies", req.cookies)
-  res.redirect("/urls");
+  if(!findUserByEmail(req.body.email) || findPasswordByEmail(req.body.email) !== req.body.password) {
+    return res.status(403).send("You do not have access!");
+  };
+  if(findPasswordByEmail(req.body.email) === req.body.password) {
+    res.cookie('email', req.body.email);
+    res.cookie('userID', findUserIDByEmail(req.body.email));
+    res.redirect("/urls");
+  }
 });
 
 app.post('/logout', function (req, res) {
@@ -140,7 +167,6 @@ app.post('/register', (req, res) => {
     email: req.body.email,
     password: req.body.password
   };
-  const user = users[id];
   res.cookie('email', users[id].email);
   res.redirect("/urls");
 })
