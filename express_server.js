@@ -1,8 +1,15 @@
 const express = require("express");
+const bcrypt = require('bcryptjs');
+
 const app = express();
 const PORT = 8080; // default port 8080
 app.use(express.urlencoded({ extended: true }));
 app.set("view engine", "ejs");
+const cookieParser = require('cookie-parser');
+const { restart } = require("nodemon");
+app.use(cookieParser());
+
+
 const generateRandomString = (length) => {
   let characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
   const charLength = characters.length;
@@ -101,9 +108,6 @@ const findAllURLbyEmail = (email) => {
   return database;
 }
 
-const cookieParser = require('cookie-parser');
-const { restart } = require("nodemon");
-app.use(cookieParser());
 
 // Get /urls
 
@@ -194,11 +198,12 @@ app.get("/urls/:id", (req, res) => {
 // app.post 
 
 app.post('/login', function (req, res) {
-  console.log("req.cookies.email", req.cookies.email)
-  if(!findUserByEmail(req.body.email) || findPasswordByEmail(req.body.email) !== req.body.password) {
+  console.log("req.body.password", req.body.password);
+  console.log("bcrypt.compareSync(req.body.password, hashedPassword)", bcrypt.compareSync(req.body.password, findPasswordByEmail(req.body.email)));
+  if(!findUserByEmail(req.body.email) || !bcrypt.compareSync(req.body.password, findPasswordByEmail(req.body.email))) {
     return res.status(403).send("You do not have access!");
   };
-  if(findPasswordByEmail(req.body.email) === req.body.password) {
+  if(bcrypt.compareSync(req.body.password, findPasswordByEmail(req.body.email))) {
     res.cookie('email', req.body.email);
     res.cookie('userID', findUserIDByEmail(req.body.email));
     res.redirect("/urls");
@@ -218,11 +223,15 @@ app.post('/register', (req, res) => {
     return res.status(400).send("Your email has been registered! Please enter another email add to resgiter!")
   };
   const id = generateRandomString(6);
+  const password = req.body.password;
+  console.log("password before harshed to userID", password);
+  const hashedPassword = bcrypt.hashSync(password, 10);
   users[id] = {
     id: id,
     email: req.body.email,
-    password: req.body.password
+    password: hashedPassword,
   };
+  console.log("users[id]", users[id])
   res.cookie('email', users[id].email);
   res.redirect("/urls");
 })
