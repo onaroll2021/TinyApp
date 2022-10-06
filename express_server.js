@@ -44,6 +44,16 @@ const findUserByEmail = (email) => {
   return false;
 };
 
+const findshortURLByID = (id) => {
+  for (const shortURL in urlDatabase) {
+    if (shortURL === id) { 
+      // we found our user!!
+      return shortURL;
+    }
+  }
+  return false;
+};
+
 const findPasswordByEmail = (email) => {
   for (const user in users) {
     const userToEmail = users[user];
@@ -76,14 +86,22 @@ app.get("/register", (req, res) => {
   const templateVars = { 
     user: findUserByEmail(req.cookies.email)
   };
-  res.render("urls_register", templateVars);
+  if (req.cookies.email) {
+    res.redirect("/urls");
+  } else {
+    res.render("urls_register", templateVars);
+  };
 });
 
 app.get("/login", (req, res) => {
   const templateVars = { 
     user: findUserByEmail(req.cookies.email)
   };
-  res.render("urls_login", templateVars);
+  if (req.cookies.email) {
+    res.redirect("/urls");
+  } else {
+    res.render("urls_login", templateVars);
+  };
 });
 
 app.get("/urls", (req, res) => {
@@ -91,6 +109,7 @@ app.get("/urls", (req, res) => {
     urls: urlDatabase,
     user: findUserByEmail(req.cookies.email)
   };
+  console.log("req.cookies", req.cookies)
   res.render("urls_index", templateVars);
 });
 
@@ -98,7 +117,11 @@ app.get("/urls/new", (req, res) => {
   const templateVars = { 
     user: findUserByEmail(req.cookies.email)
   };
+  if(!req.cookies.email) {
+    res.redirect ("/login");
+  } else {
   res.render("urls_new", templateVars);
+  }
 });
 
 app.get("/urls.json", (req, res) => {
@@ -111,7 +134,11 @@ app.get("/urls/:id", (req, res) => {
     longURL: urlDatabase[req.params.id], 
     user: findUserByEmail(req.cookies.email),
   };
+  if (!findshortURLByID(req.params.id)) {
+    return res.status(400).send("You need to enter a valid shortenURL!")
+  } else{
   res.render("urls_show", templateVars);
+  }
 });
 // app.get("/urls/:id", (req, res) => {
 //   const longURL = urlDatabase[req.params.id]
@@ -173,9 +200,13 @@ app.post('/register', (req, res) => {
 
 app.post("/urls", (req, res) => {
   console.log("req.body", req.body); // Log the POST request body to the console
+  if (!req.body.email) {
+    return res.send("you need to login first!")
+  } else {
   const shortUrl = generateRandomString(6);
   urlDatabase[shortUrl] = req.body.longURL;
   res.redirect(`/urls/${shortUrl}`);
+  }
 });
 
 app.post("/urls/:id/delete", (req, res) => {
