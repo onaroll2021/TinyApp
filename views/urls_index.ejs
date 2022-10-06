@@ -35,7 +35,7 @@
           <% for (let id in urls) { %>
             <tr>
               <td><a href="/urls/<%= id %>"><%= id %></a></td>
-              <td><%= urls[id] %></td>
+              <td><%= urls[id].LongURL %></td>
               <form method="POST" action="/urls/<%= id %>/edit">
                 <td><button type="submit" class="btn btn-outline-danger">Edit</button></td>
               </form>
