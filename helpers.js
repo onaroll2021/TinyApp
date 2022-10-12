@@ -82,6 +82,9 @@ const generateRandomString = (length) => {
   return res;
 };
 
+const urlDatabase = {};
+const users = {};
+
 module.exports = {
   findUserByEmail,
   findshortURLByID,
@@ -89,5 +92,7 @@ module.exports = {
   findUserIDByEmail,
   findAllURLbyEmail,
   generateRandomString,
-  finduserIDByshortURL
+  finduserIDByshortURL,
+  users,
+  urlDatabase,
 };

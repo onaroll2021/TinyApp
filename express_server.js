@@ -20,30 +20,36 @@ const {
   findUserIDByEmail,
   findAllURLbyEmail,
   generateRandomString,
-  finduserIDByshortURL
+  finduserIDByshortURL,
+  users,
+  urlDatabase,
 } = require('./helpers');
 
-const urlDatabase = {};
-const users = {};
 
 // Get /resgiter /login /urls /urls/new /urls/:id /urls.json
 
 // GET /register (if user logged in, redirect; otherwise return register page)
-app.get("/register", (req, res) => {
-  const templateVars = { 
-    user: findUserByEmail(req.session.email, users),
-    urls: findAllURLbyEmail(req.session.email, users, urlDatabase)
-  };
+app.get("/", (req, res) => {
   if (findUserByEmail(req.session.email)) {
     res.redirect("/urls");
   } else {
+    res.redirect ("/login");
+  }
+});
+
+app.get("/register", (req, res) => {
+  if (findUserByEmail(req.session.email)) {
+    res.redirect("/urls");
+  } else {
+    const templateVars = { 
+      user: findUserByEmail(req.session.email, users),
+    };
     res.render("urls_register", templateVars);
   }
 });
 
 // GET /login (if user logged in, redirect to /urls; otherwise return to login page)
 app.get("/login", (req, res) => {
-  console.log("req.session", req.session);
   const templateVars = { 
     user: findUserByEmail(req.session.email, users),
     urls: findAllURLbyEmail(req.session.email, users, urlDatabase)
@@ -87,8 +93,6 @@ app.get("/urls/:id", (req, res) => {
     urls: findAllURLbyEmail(req.session.email, users, urlDatabase), 
     user: findUserByEmail(req.session.email, users),
   };
-  console.log("finduserIDByshortURL(req.params.id, urlDatabase)", finduserIDByshortURL(req.params.id, urlDatabase));
-  console.log("findUserByEmail(req.session.email, users).id", findUserByEmail(req.session.email, users).id);
   if (!findshortURLByID(req.params.id, urlDatabase)) {
     return res.status(400).send("You need to enter a valid shortenURL!");
   } else if (!findUserByEmail(req.session.email, users)) { 
@@ -99,6 +103,11 @@ app.get("/urls/:id", (req, res) => {
   else {
   res.render("urls_show", templateVars);
   }
+});
+
+app.get("/urls/:id/edit", (req, res) => {
+  const id = req.params.id;
+  res.redirect(`/urls/${id}`);
 });
 
 // POST /login if(pw and email match, redirect /urls; otherwise return error)
@@ -154,16 +163,12 @@ app.post("/urls", (req, res) => {
   }
 });
 
-app.post("/urls/:id/delete", (req, res) => {
-  const id = req.params.id;
-  delete urlDatabase[id];
-  res.redirect("/urls");
+app.post("/urls/:id/delete", (req, res) => { 
+    const id = req.params.id;
+    delete urlDatabase[id];
+    res.redirect("/urls");
 });
 
-app.post("/urls/:id/edit", (req, res) => {
-  const id = req.params.id;
-  res.redirect(`/urls/${id}`);
-});
 
 // POST /urls edit the new shortURL and redirect
 app.post("/urls/:id", (req, res) => {
