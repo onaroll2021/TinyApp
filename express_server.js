@@ -86,8 +86,8 @@ app.get("/urls.json", (req, res) => {
   res.json(urlDatabase);
 });
 
-// GET /urls/:id (only user logged in and has the access to the shortURL; otherwise return error message)
-app.get("/urls/:id", (req, res) => {
+// GET /u/:id (only user logged in and has the access to the shortURL; otherwise return error message)
+app.get("/u/:id", (req, res) => {
   const templateVars = { 
     id: req.params.id, 
     urls: findAllURLbyEmail(req.session.email, users, urlDatabase), 
@@ -107,7 +107,7 @@ app.get("/urls/:id", (req, res) => {
 
 app.get("/urls/:id/edit", (req, res) => {
   const id = req.params.id;
-  res.redirect(`/urls/${id}`);
+  res.redirect(`/u/${id}`);
 });
 
 // POST /login if(pw and email match, redirect /urls; otherwise return error)
@@ -159,7 +159,7 @@ app.post("/urls", (req, res) => {
     "longURL": req.body.longURL,
     "userID": findUserIDByEmail(req.session.email, users)
   }
-  res.redirect(`/urls/${shortUrl}`);
+  res.redirect(`/u/${shortUrl}`);
   }
 });
 

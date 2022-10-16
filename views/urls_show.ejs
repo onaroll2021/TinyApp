@@ -17,9 +17,9 @@
     <div class="card text-center">
       <div class="card-header"></div>
       <div class="card-body">
-        <h5 class="card-title">TinyURL for: <%= urls[id].LongURL %></h5>
+        <h5 class="card-title">TinyURL for: <a href="<%= urls[id].LongURL %>"><%= urls[id].LongURL %></a></h5>
         <p class="card-text">
-          Short URL ID: <a href="/urls/<%= id %>"><%= id %></a>
+          Short URL ID: <a href="/u/<%= id %>"><%= id %></a>
           <form class="form-inline" action="/urls" method="POST"></form>
         </p>
       </div>
